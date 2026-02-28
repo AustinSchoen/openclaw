@@ -258,6 +258,11 @@ export async function compactEmbeddedPiSessionDirect(
 
   const provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
   const modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+  // Log when a compaction model override is active (caller resolved from config).
+  const configCompactionModel = params.config?.agents?.defaults?.compaction?.model?.trim();
+  if (configCompactionModel) {
+    log.info(`[compaction] using model override: ${provider}/${modelId}`);
+  }
   const fail = (reason: string): EmbeddedPiCompactResult => {
     log.warn(
       `[compaction-diag] end runId=${runId} sessionKey=${params.sessionKey ?? params.sessionId} ` +

@@ -727,8 +727,22 @@ export async function runEmbeddedPiAgent(
                 );
               }
               overflowCompactionAttempts++;
+              // Resolve compaction model override from config (provider/model format).
+              const compactionModelOverride =
+                params.config?.agents?.defaults?.compaction?.model?.trim();
+              let compactProvider = provider;
+              let compactModelId = modelId;
+              if (compactionModelOverride) {
+                const slashIdx = compactionModelOverride.indexOf("/");
+                if (slashIdx > 0) {
+                  compactProvider = compactionModelOverride.slice(0, slashIdx);
+                  compactModelId = compactionModelOverride.slice(slashIdx + 1);
+                } else {
+                  compactModelId = compactionModelOverride;
+                }
+              }
               log.warn(
-                `context overflow detected (attempt ${overflowCompactionAttempts}/${MAX_OVERFLOW_COMPACTION_ATTEMPTS}); attempting auto-compaction for ${provider}/${modelId}`,
+                `context overflow detected (attempt ${overflowCompactionAttempts}/${MAX_OVERFLOW_COMPACTION_ATTEMPTS}); attempting auto-compaction for ${compactProvider}/${compactModelId}`,
               );
               const compactResult = await compactEmbeddedPiSessionDirect({
                 sessionId: params.sessionId,
@@ -743,8 +757,8 @@ export async function runEmbeddedPiAgent(
                 config: params.config,
                 skillsSnapshot: params.skillsSnapshot,
                 senderIsOwner: params.senderIsOwner,
-                provider,
-                model: modelId,
+                provider: compactProvider,
+                model: compactModelId,
                 runId: params.runId,
                 thinkLevel,
                 reasoningLevel: params.reasoningLevel,

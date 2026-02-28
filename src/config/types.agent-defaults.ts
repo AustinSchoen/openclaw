@@ -272,6 +272,8 @@ export type AgentCompactionMode = "default" | "safeguard";
 export type AgentCompactionIdentifierPolicy = "strict" | "off" | "custom";
 
 export type AgentCompactionConfig = {
+  /** Optional model override for compaction (e.g. a cheaper model). Falls back to the session primary model. */
+  model?: string;
   /** Compaction summarization mode. */
   mode?: AgentCompactionMode;
   /** Pi reserve tokens target before floor enforcement. */
